@@ -1,0 +1,131 @@
+﻿@model Laboratorio6.Web.Areas.Game.Game.GameViewModel
+@{
+    ViewData["Title"] = "Seleziona uno sfidante";
+}
+
+@*
+    ES4: MIGLIORATE INTERFACCIA E IMPLEMENTATE GRAFICA PER DOLCETTO/SCHERZETTO
+*@
+<div>
+    <div class="container-lg">
+        <div class="row">
+            <div class="col-12">
+                <section>
+                    <h2>Stato partita <span>@Model.IdPartita</span></h2>
+                    <div style="max-height:300px; overflow-y:scroll;">
+                        @* 
+                            ES2: INSERITE QUI UN CICLO IN VUE CHE CARICHI TUTTI I MESSAGGI PRESENTI NEL MODELLO
+                            NELLA PROPRIETA MESSAGGI. FINITA L'IMPLEMENTAZIONE, QUANDO INSERITE UN NUOVO MESSAGGIO
+                            DOVRESTE VEDERLO APPARIRE QUA
+                        *@
+                    </div>
+                </section>
+                <section>
+                    <h2>Azioni</h2>
+                    <template v-for="azione of azioniDisponibili">
+                        <button v-on:click="eseguiAzione(azione.idAzione)">{{ azione.nome }}</button>
+                    </template>
+                </section>
+                <section>
+                    <h2>Messaggio</h2>
+                    <textarea v-model="nuovoMessaggio"></textarea>
+                    <button class="btn btn-secondary" type="button" v-bind:disabled="!nuovoMessaggio" v-on:click="inviaMessaggio()">Invia</button>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div id="lostConnection" class="d-none">
+        <h3>Ho perso la connessione con il server</h3>
+        <p><i class="fa-regular fa-circle-notch fa-spin"></i>&nbsp;Attendi, sto riprovando a connettermi per te</p>
+    </div>
+    <div id="lostConnectionManualRetry" class="d-none">
+        <h3>Ho perso la connessione con il server e non riesco più a ricollegarmi</h3>
+        <p>Prova ad aggiornare la pagina manualmente</p>
+        <button class="btn btn-primary" onclick="location.reload(true)"><i class="fa-solid fa-sync-alt"></i>&nbsp;Ricarica la pagina</button>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/js/bundle-vue.js" asp-append-version="true"></script>
+    <script src="~/js/bundle-signalr.js" asp-append-version="true"></script>
+    <script src="~/Areas/Game/Game/Game.js" asp-append-version="true"></script>
+
+    <script type="application/json" id="Seed_JSON">
+        @Html.Raw(Model.ToJson())
+    </script>
+    <script type="text/javascript">
+        // ES3: Sottoscrizione all'hub con entrata nel gruppo con id uguale alla partita corrente
+        //#region SignalR
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("@Model.UrlGameHub")
+            .withAutomaticReconnect({
+                nextRetryDelayInMilliseconds: retryContext => {
+                    const maxReconnectionMillisecondsDelay = 60000;
+                    console.log("[" + new Date().toISOString() + "] retryContext.elapsedMilliseconds " + retryContext.elapsedMilliseconds);
+                    if (retryContext.elapsedMilliseconds < maxReconnectionMillisecondsDelay) {
+                        console.log("[" + new Date().toISOString() + "] SignalR riprovo la connessione tra " + retryContext.elapsedMilliseconds + "ms");
+                        return retryContext.elapsedMilliseconds;
+                    } else {
+                        console.log("[" + new Date().toISOString() + "] SignalR non riprovo, ho superato " + maxReconnectionMillisecondsDelay + "ms di tentativi");
+                        return null;
+                    }
+                }
+            })
+            .configureLogging(signalR.LogLevel.Error)
+            .build();
+
+        async function startConnection() {
+            console.log("[" + new Date().toISOString() + "] SignalR in connessione");
+            try {
+                await connection.start();
+                console.assert(connection.state === signalR.HubConnectionState.Connected);
+                connection.invoke("EntraNelGruppo", "@Model.IdPartita");
+
+                console.log("[" + new Date().toISOString() + "] SignalR connesso");
+                document.getElementById('lostConnection').classList.add('d-none');
+                document.getElementById('lostConnectionManualRetry').classList.add('d-none');
+            } catch (err) {
+                console.assert(connection.state === signalR.HubConnectionState.Disconnected);
+
+                console.log("[" + new Date().toISOString() + "] SignalR erore in connessione " + err);
+                console.log("[" + new Date().toISOString() + "] SignalR riprovo la connessione tra 5000ms");
+                setTimeout(() => startConnection(), 5000);
+            }
+        };
+
+        connection.onreconnecting(error => {
+            console.assert(connection.state === signalR.HubConnectionState.Reconnecting);
+
+            document.getElementById('lostConnection').classList.remove('d-none');
+            console.log("[" + new Date().toISOString() + "] SignalR in riconnessione. " + error + ".");
+        });
+
+        connection.onreconnected(connectionId => {
+            console.assert(connection.state === signalR.HubConnectionState.Connected);
+
+            connection.invoke("EntraNelGruppo", "@Model.IdPartita");
+
+            console.log("[" + new Date().toISOString() + "] SignalR riconnesso");
+            document.getElementById('lostConnection').classList.add('d-none');
+            document.getElementById('lostConnectionManualRetry').classList.add('d-none');
+        });
+
+        connection.onclose(async (error) => {
+            console.assert(connection.state === signalR.HubConnectionState.Disconnected);
+            console.log("[" + new Date().toISOString() + "] SignalR scollegato definitivamente");
+            document.getElementById('lostConnection').classList.add('d-none');
+            document.getElementById('lostConnectionManualRetry').classList.remove('d-none');
+        });
+
+        startConnection();
+        //#endregion
+
+        var viewModel = new Game.Game.gameViewModel(connection, JSON.parse(document.getElementById("Seed_JSON").innerText));
+
+        var vueModel = new Vue({
+            el: '#pageId',
+            data: viewModel
+        });
+    </script>
+}

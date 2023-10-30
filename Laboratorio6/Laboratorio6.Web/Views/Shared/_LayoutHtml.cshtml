@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html lang="it-IT">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"] - Laboratorio 6</title>
+    <meta name="description" content="@ViewData["Description"]">
+    @RenderSection("metas", false)
+    <link href="~/css/bundle-global.min.css" asp-append-version="true" rel="stylesheet" />
+    @RenderSection("styles", false)
+</head>
+<body>
+    @RenderBody()
+    <script type="text/javascript">
+        var clientLocale = 'it-IT';
+    </script>
+    <environment include="Development">
+        <script src="~/js/bundle-global.js" asp-append-version="true"></script>
+    </environment>
+    <environment include="Staging,Production">
+        <script src="~/js/bundle-global.min.js" asp-append-version="true"></script>
+    </environment>
+    @RenderSection("scripts", required: false)
+</body>
+</html>
