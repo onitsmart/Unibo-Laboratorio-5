@@ -24,7 +24,9 @@
                     this.azioniDisponibili = [this.model.azioni.find(x => x.idAzione == 1)];
                 } else if (idUtente != model.idUtenteCorrente) {
                     this.azioniDisponibili = this.model.azioni.filter(x => azione.idAzioniRisposta.includes(x.idAzione));
+                }
 
+                if (idUtente != model.idUtenteCorrente) {
                     if (idAzione == 2)
                         this.dolcettiOttenuti++;
 

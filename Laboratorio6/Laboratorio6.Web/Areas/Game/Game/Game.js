@@ -37,6 +37,8 @@ var Game;
                     }
                     else if (idUtente != model.idUtenteCorrente) {
                         this.azioniDisponibili = this.model.azioni.filter(x => azione.idAzioniRisposta.includes(x.idAzione));
+                    }
+                    if (idUtente != model.idUtenteCorrente) {
                         if (idAzione == 2)
                             this.dolcettiOttenuti++;
                         if (idAzione == 4 || idAzione == 5 || idAzione == 6) {

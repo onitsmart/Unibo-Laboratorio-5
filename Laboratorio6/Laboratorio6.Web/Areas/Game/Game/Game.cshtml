@@ -22,7 +22,7 @@
                 </section>
                 <section>
                     <h2>Azioni</h2>
-                    <template v-for="azione of azioniDisponibili">
+                    <template v-for="azione in azioniDisponibili">
                         <button v-on:click="eseguiAzione(azione.idAzione)">{{ azione.nome }}</button>
                     </template>
                 </section>
