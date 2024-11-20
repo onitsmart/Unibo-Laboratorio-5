@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="Areas\Game\Game\Game.ts" />
+		<None Remove="Areas\Game\Game\Index.ts" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.11" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="SG4MVC" Version="0.9.4-beta" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.11" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="Sg4Mvc.GenerateSg4Mvc" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Laboratorio5\Laboratorio5.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<TypeScriptCompile Include="Areas\Game\Game\Game.ts" />
+		<TypeScriptCompile Include="Areas\Game\Game\Index.ts" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Areas\Game\Game\GameViewModel.cs">
+			<Generator>DtsGenerator</Generator>
+			<LastGenOutput>GameViewModel.cs.d.ts</LastGenOutput>
+		</Compile>
+		<Compile Update="Areas\Game\Game\IndexViewModel.cs">
+			<Generator>DtsGenerator</Generator>
+			<LastGenOutput>IndexViewModel.cs.d.ts</LastGenOutput>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="Areas\Game\Game\GameViewModel.cs.d.ts">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>GameViewModel.cs</DependentUpon>
+		</None>
+		<None Update="Areas\Game\Game\IndexViewModel.cs.d.ts">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>IndexViewModel.cs</DependentUpon>
+		</None>
+	</ItemGroup>
+
+</Project>
