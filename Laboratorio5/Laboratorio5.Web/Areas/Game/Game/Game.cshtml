@@ -3,21 +3,43 @@
     ViewData["Title"] = "Seleziona uno sfidante";
 }
 
+@section styles {
+    <style>
+        .scherzetto-colori {
+            background-color: #0000FF;
+            color: #FF0000;
+        }
+
+        .scherzetto-font-size * {
+            font-size: 0.2rem !important;
+        }
+
+        img.dolcetto {
+            max-width: 150px;
+        }
+    </style>
+}
+
 @*
     ES4: MIGLIORATE INTERFACCIA E IMPLEMENTATE GRAFICA PER DOLCETTO/SCHERZETTO
 *@
-<div>
+<div v-bind:class="{ 'scherzetto-colori': scherzettiAttivi.some(x => x == 4), 'scherzetto-font-size': scherzettiAttivi.some(x => x == 5) }">
     <div class="container-lg">
         <div class="row">
             <div class="col-12">
                 <section>
                     <h2>Stato partita <span>@Model.IdPartita</span></h2>
                     <div style="max-height:300px; overflow-y:scroll;">
-                        @* 
-                            ES1: INSERITE QUI UN CICLO IN VUE CHE CARICHI TUTTI I MESSAGGI PRESENTI NEL MODELLO
-                            NELLA PROPRIETA MESSAGGI. FINITA L'IMPLEMENTAZIONE, QUANDO INSERITE UN NUOVO MESSAGGIO
-                            DOVRESTE VEDERLO APPARIRE QUA
+                        @*
+                        ES1: INSERITE QUI UN CICLO IN VUE CHE CARICHI TUTTI I MESSAGGI PRESENTI NEL MODELLO
+                        NELLA PROPRIETA MESSAGGI. FINITA L'IMPLEMENTAZIONE, QUANDO INSERITE UN NUOVO MESSAGGIO
+                        DOVRESTE VEDERLO APPARIRE QUA
                         *@
+                        <ul>
+                            <li v-for="messaggio in model.messaggi">
+                                {{ messaggio }}
+                            </li>
+                        </ul>
                     </div>
                 </section>
                 <section>
@@ -30,6 +52,12 @@
                     <h2>Messaggio</h2>
                     <textarea v-model="nuovoMessaggio"></textarea>
                     <button class="btn btn-secondary" type="button" v-bind:disabled="!nuovoMessaggio" v-on:click="inviaMessaggio()">Invia</button>
+                </section>
+                <section>
+                    <img class="img-fluid dolcetto" v-for="n in dolcettiOttenuti" src="~/images/dolcetto.webp" />
+                </section>
+                <section>
+                    <img class="img-fluid" v-if="scherzettiAttivi.some(x => x == 6)" src="~/images/scherzetto.gif" />
                 </section>
             </div>
         </div>
@@ -46,7 +74,7 @@
     </div>
 </div>
 
-@section scripts{
+@section scripts {
     <script src="~/js/bundle-vue.js" asp-append-version="true"></script>
     <script src="~/js/bundle-signalr.js" asp-append-version="true"></script>
     <script src="~/Areas/Game/Game/Game.js" asp-append-version="true"></script>

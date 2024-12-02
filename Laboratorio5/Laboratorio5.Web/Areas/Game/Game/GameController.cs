@@ -33,7 +33,7 @@ namespace Laboratorio5.Web.Areas.Game.Game
             var utentiDaSfidare = await _utentiService.Query(new UtentiDaSfidareQuery
             {
                 // ES1: MANCA ID UTENTE CORRENTE, LO TROVATE NEL BASE CONTROLLER
-                IdUtenteCorrente = new Guid(),
+                IdUtenteCorrente = UtenteCorrente.Id,
                 Filtro = filtro,
             });
 

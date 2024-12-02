@@ -50,7 +50,7 @@ namespace Laboratorio5.Services.Utenti
                 .Where(x => x.Email == qry.Email)
                 .FirstOrDefaultAsync();
 
-            if (utente == null)
+            if (utente == null || utente.TryPassword(qry.Password) == false)
                 throw new LoginException("Email o password errate");
 
             return new UtenteInfoDTO
@@ -80,9 +80,11 @@ namespace Laboratorio5.Services.Utenti
 
         public async Task<IEnumerable<UtenteDaSfidareDTO>> Query(UtentiDaSfidareQuery qry)
         {
-            var queryable = _dbContext.Utenti;
+            var queryable = _dbContext.Utenti
+                .Where(x => x.Id != qry.IdUtenteCorrente);
 
-            // ES1: MANCANO I FILTRI
+            if (string.IsNullOrWhiteSpace(qry.Filtro) == false)
+                queryable = queryable.Where(x => x.Email.Contains(qry.Filtro));
 
             return await queryable
                 .Select(x => new UtenteDaSfidareDTO
